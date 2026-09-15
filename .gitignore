@@ -30,3 +30,6 @@
 *.exe
 *.out
 *.app
+/M137TAM_Test/.idea
+/M137TAM_ESP1/.idea
+/M137TAM_ESP2/.idea
