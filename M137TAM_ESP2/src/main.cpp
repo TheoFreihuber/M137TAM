@@ -1,25 +1,27 @@
 #include <Arduino.h>
+#include <chrono>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 
 bool objet_posee = false;
+bool teleportation = false;
 
-
+ulong debut_teleportation = 0;
 
 void Setangle(int servo, int angle);
 
 //region initialisation des broches
 /// BROCHE ///
-constexpr int ecran1 = 0;
-constexpr int ecran2 = 0;
+constexpr int ecran1 = D1;
+constexpr int ecran2 = D2;
 
-constexpr int bouton = 0;
+constexpr int bouton = D3;
 
-constexpr int servo_entree = 0;
+constexpr int servo_entree = D6;
 
-constexpr int capteur_proxi = 0;
+constexpr int capteur_proxi = D7;
 
-constexpr int led_entree = 0;
+constexpr int led_entree = D5;
 
 /// ECRAN ///
 constexpr int largeur_ecran = 20;
@@ -49,33 +51,58 @@ void setup() {
     lcd.backlight();
 
     /// Affichage du message d'accueil du teleporteur ///
-    lcd.setCursor(3, 0);
-    lcd.print("Appuyez sur le");
-    lcd.setCursor(4, 1);
-    lcd.print("bouton pour");
-    lcd.setCursor(4, 2);
-    lcd.print("commencer la");
-    lcd.setCursor(3, 3);
-    lcd.print("teleportation.");
+    lcd.setCursor(0, 0);
+    lcd.print("   Appuyez sur le   ");
+    lcd.setCursor(0, 1);
+    lcd.print("    bouton pour     ");
+    lcd.setCursor(0, 2);
+    lcd.print("    commencer la    ");
+    lcd.setCursor(0, 3);
+    lcd.print("   teleportation.   ");
     //endregion
 
 }
 
 void loop() {
     if (objet_posee) {
+        if (digitalRead(bouton) == LOW) {
+            teleportation = true;
+            debut_teleportation = millis();
 
-        lcd.setCursor(0, 0);
-        lcd.print("Teleportation lancee");
-        lcd.setCursor(0, 1);
-        lcd.print("L objet a ete envoye");
-        lcd.setCursor(0, 2);
-        lcd.print("█");
-        lcd.setCursor(9, 3);
-        lcd.print("5%");
+        }
+        if (teleportation) {
+            lcd.setCursor(0, 0);
+            lcd.print("Teleportation lancee");
+            lcd.setCursor(0, 1);
+            lcd.print("L objet a ete envoye");
+            lcd.setCursor(0, 2);
+            lcd.print("[=-----------------]");
+            lcd.setCursor(0, 3);
+            lcd.print("         5%         ");
 
-        digitalWrite(led_entree, LOW);
+            digitalWrite(led_entree, LOW);
+            if (millis() < debut_teleportation + 3000) {
+                Setangle(servo_entree, 135);
+            }
+            else {
+                Setangle(servo_entree, 180);
+            }
 
-        Setangle(servo_entree, 135);
+        }
+        else {
+            lcd.setCursor(0, 0);
+            lcd.print("Object detecte, vous");
+            lcd.setCursor(0, 1);
+            lcd.print("pouvez effectuer une");
+            lcd.setCursor(0, 2);
+            lcd.print("   teleportation    ");
+            lcd.setCursor(0, 3);
+            lcd.print(" PRESSEZ LE BOUTON  ");
+
+            digitalWrite(led_entree, HIGH);
+        }
+
+
 
 
 
@@ -85,30 +112,20 @@ void loop() {
     else {
         Setangle(servo_entree, 180);
         if (digitalRead(bouton) == LOW) {
-            lcd.setCursor(1, 0);
-            lcd.print("Veuillez poser un");
+            lcd.setCursor(0, 0);
+            lcd.print("Veuillez poser un ");
             lcd.setCursor(0, 1);
             lcd.print("object sur le socle");
-            lcd.setCursor(1, 2);
-            lcd.print("avant d effectuer");
-            lcd.setCursor(1, 3);
-            lcd.print("une teleportation.");
+            lcd.setCursor(0, 2);
+            lcd.print("avant d effectuer ");
+            lcd.setCursor(0, 3);
+            lcd.print("une teleportation. ");
             // probablement mettre un son de buzzer pour améliorer l'UI
         }
 
         if (digitalRead(capteur_proxi) == LOW) {
-            lcd.setCursor(0, 0);
-            lcd.print("Object detecte, vous ");
-            lcd.setCursor(0, 1);
-            lcd.print("pouvez effectuer une");
-            lcd.setCursor(3, 2);
-            lcd.print("teleportation.");
-            lcd.setCursor(0, 3);
-            lcd.print("↓PRESSEZ LE BOUTON↓");
-
             objet_posee = true;
 
-            digitalWrite(led_entree, HIGH);
         }
 
     }

@@ -36,8 +36,9 @@ void setup() {
     */
     //pinMode(D1, OUTPUT);
     //pinMode(D2, OUTPUT);
-    pinMode(servo_plaque1, OUTPUT);
-    pinMode(A0, INPUT);
+    pinMode(D1, OUTPUT);
+    pinMode(D2, OUTPUT);
+    pinMode(D3, OUTPUT);
 
 
 
@@ -46,7 +47,7 @@ void setup() {
 
 void loop() {
     // Ascenseur(10);
-
+    /*
 
     if (Magnet(A0) == HIGH) {
         Setangle(servo_plaque1, 135);
@@ -54,6 +55,11 @@ void loop() {
     else if (Magnet(A0)== LOW) {
         Setangle(servo_plaque1, 180);
     }
+    */
+
+    analogWrite(D1, 255);
+    digitalWrite(D2, LOW);
+    digitalWrite(D3, HIGH);
 
 
 
