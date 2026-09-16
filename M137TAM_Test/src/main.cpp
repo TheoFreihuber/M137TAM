@@ -10,11 +10,13 @@ int motor4 = ;
 
 
 LiquidCrystal_I2C lcd(0x27, 20, 4);
-
+*/
 ulong tmpservo = 0;
 ulong delais1 = 0;
 ulong delais2 = 2000;
-*/
+
+bool notstarted = true;
+
 
 int servo_plaque1 = D2;
 
@@ -23,6 +25,11 @@ void Ascenseur(int speed);
 void Setangle(int servo, int angle);
 
 bool Magnet(int pin_magnet);
+
+void MoteurPPStart(int pin_moteurPP1,  int pin_moteurPP2,  int pin_moteurPP3,  int pin_moteurPP4);
+void MoteurPPClockWise( int pin_moteurPP1,  int pin_moteurPP2,  int pin_moteurPP3,  int pin_moteurPP4,  int vitesse);
+void MoteurPPCounterClockWise( int pin_moteurPP1,  int pin_moteurPP2,  int pin_moteurPP3,  int pin_moteurPP4,  int vitesse);
+
 
 void setup() {
     Serial.begin(115200);
@@ -37,7 +44,10 @@ void setup() {
     */
     //pinMode(D1, OUTPUT);
     //pinMode(D2, OUTPUT);
-    pinMode(D1, INPUT);
+    pinMode(D1, OUTPUT);
+    pinMode(D2, OUTPUT);
+    pinMode(D5, OUTPUT);
+    pinMode(D6, OUTPUT);
 
 
 
@@ -63,9 +73,38 @@ void loop() {
     digitalWrite(D3, HIGH);
 
     */
+    if (notstarted == true) {
+        digitalWrite(D1, HIGH);
+        digitalWrite(D2, LOW);
+        digitalWrite(D5, LOW);
+        digitalWrite(D6, LOW);
+        notstarted = false;
+    }
 
-    Serial.println(digitalRead(D1));
-    delay(20);
+
+    //montee
+    bool temp = digitalRead(D6);
+    digitalWrite(D6, digitalRead(D5));
+    digitalWrite(D5, digitalRead(D2));
+    digitalWrite(D2, digitalRead(D1));
+    digitalWrite(D1, temp);
+
+
+    /*
+    //descente
+    bool temp = digitalRead(D1);
+    digitalWrite(D1, digitalRead(D2));
+    digitalWrite(D2, digitalRead(D5));
+    digitalWrite(D5, digitalRead(D6));
+    digitalWrite(D6, temp);
+    */
+
+
+    delay(2);
+
+
+
+
 
 }
 
@@ -117,7 +156,7 @@ void MoteurPPStart(const int pin_moteurPP1, const int pin_moteurPP2, const int p
 
 void MoteurPPClockWise(const int pin_moteurPP1, const int pin_moteurPP2, const int pin_moteurPP3, const int pin_moteurPP4, const int vitesse) {
 
-    int attente = map(vitesse, 0, 100, 200,0);
+    int attente = map(vitesse, 0, 100, 200,2);
 
     static unsigned long tmpMoteurPP = 0;
     ulong now = millis();
@@ -133,7 +172,7 @@ void MoteurPPClockWise(const int pin_moteurPP1, const int pin_moteurPP2, const i
 
 void MoteurPPCounterClockWise(const int pin_moteurPP1, const int pin_moteurPP2, const int pin_moteurPP3, const int pin_moteurPP4, const int vitesse) {
 
-    int attente = map(vitesse, 0, 100, 200,0);
+    int attente = map(vitesse, 0, 100, 200,2);
 
     static unsigned long tmpMoteurPP = 0;
     ulong now = millis();
