@@ -10,7 +10,7 @@ ulong debut_teleportation = 0;
 
 void Setangle(int servo, int angle);
 
-//region initialisation des broches
+//region initialisation des constantes
 /// BROCHE ///
 constexpr int ecran1 = D1;
 constexpr int ecran2 = D2;
@@ -26,6 +26,13 @@ constexpr int led_entree = D5;
 /// ECRAN ///
 constexpr int largeur_ecran = 20;
 constexpr int hauteur_ecran = 4;
+
+/// POSITION SERVO ///
+constexpr int position_haute_plateforme = 140;
+constexpr int position_basse_plateforme = 90;
+
+
+
 //endregion
 
 LiquidCrystal_I2C lcd(0x27, largeur_ecran, hauteur_ecran);  // Initialisation de l'écran
@@ -82,14 +89,15 @@ void loop() {
 
             digitalWrite(led_entree, LOW);
             if (millis() < debut_teleportation + 3000) {
-                Setangle(servo_entree, 135);
+                Setangle(servo_entree, position_basse_plateforme);
             }
             else {
-                Setangle(servo_entree, 180);
+                Setangle(servo_entree, position_haute_plateforme);
             }
 
         }
         else {
+            Setangle(servo_entree, position_haute_plateforme);
             lcd.setCursor(0, 0);
             lcd.print("Object detecte, vous");
             lcd.setCursor(0, 1);
@@ -101,16 +109,10 @@ void loop() {
 
             digitalWrite(led_entree, HIGH);
         }
-
-
-
-
-
-
-
     }
+
     else {
-        Setangle(servo_entree, 180);
+        Setangle(servo_entree, position_haute_plateforme);
         if (digitalRead(bouton) == LOW) {
             lcd.setCursor(0, 0);
             lcd.print("Veuillez poser un ");
