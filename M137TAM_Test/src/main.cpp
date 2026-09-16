@@ -7,13 +7,14 @@ int motor1 = D5;
 int motor2 = D6;
 int motor3 = D7;
 int motor4 = ;
-*/
 
-//LiquidCrystal_I2C lcd(0x27, 20, 4);
+
+LiquidCrystal_I2C lcd(0x27, 20, 4);
 
 ulong tmpservo = 0;
 ulong delais1 = 0;
 ulong delais2 = 2000;
+*/
 
 int servo_plaque1 = D2;
 
@@ -24,8 +25,8 @@ void Setangle(int servo, int angle);
 bool Magnet(int pin_magnet);
 
 void setup() {
-    /*
     Serial.begin(115200);
+    /*
     Wire.begin(D1, D2);
     lcd.begin(20, 4); // Démarre l'afficheur
     lcd.backlight(); // Allume le rétro-éclairage
@@ -36,9 +37,8 @@ void setup() {
     */
     //pinMode(D1, OUTPUT);
     //pinMode(D2, OUTPUT);
-    pinMode(D1, OUTPUT);
-    pinMode(D2, OUTPUT);
-    pinMode(D3, OUTPUT);
+    pinMode(D1, INPUT);
+
 
 
 
@@ -46,6 +46,7 @@ void setup() {
 }
 
 void loop() {
+
     // Ascenseur(10);
     /*
 
@@ -55,17 +56,20 @@ void loop() {
     else if (Magnet(A0)== LOW) {
         Setangle(servo_plaque1, 180);
     }
-    */
+
 
     analogWrite(D1, 255);
     digitalWrite(D2, LOW);
     digitalWrite(D3, HIGH);
 
+    */
 
+    Serial.println(digitalRead(D1));
+    delay(20);
 
 }
 
-void Setangle(int servo, int angle)
+void Setangle(const int servo, const int angle)
 {
     ulong now = millis();
     if (now - tmpservo > 20)
@@ -75,7 +79,6 @@ void Setangle(int servo, int angle)
         digitalWrite(servo, LOW);
         tmpservo = now;
     }
-
 }
 
 /*
@@ -101,6 +104,45 @@ void Attend(int temps) {
 }
 */
 
-bool Magnet(int pin_magnet) {
+bool Magnet(const int pin_magnet) {
     return (analogRead(pin_magnet) < 100);
+}
+
+void MoteurPPStart(const int pin_moteurPP1, const int pin_moteurPP2, const int pin_moteurPP3, const int pin_moteurPP4) {
+    digitalWrite(pin_moteurPP1, HIGH);
+    digitalWrite(pin_moteurPP2, LOW);
+    digitalWrite(pin_moteurPP3, LOW);
+    digitalWrite(pin_moteurPP4, LOW);
+}
+
+void MoteurPPClockWise(const int pin_moteurPP1, const int pin_moteurPP2, const int pin_moteurPP3, const int pin_moteurPP4, const int vitesse) {
+
+    int attente = map(vitesse, 0, 100, 200,0);
+
+    static unsigned long tmpMoteurPP = 0;
+    ulong now = millis();
+    if (now - tmpMoteurPP > attente)
+    {
+        digitalWrite(pin_moteurPP1, digitalRead(pin_moteurPP4));
+        digitalWrite(pin_moteurPP2, digitalRead(pin_moteurPP1));
+        digitalWrite(pin_moteurPP3, digitalRead(pin_moteurPP2));
+        digitalWrite(pin_moteurPP4, digitalRead(pin_moteurPP3));
+        tmpMoteurPP = now;
+    }
+}
+
+void MoteurPPCounterClockWise(const int pin_moteurPP1, const int pin_moteurPP2, const int pin_moteurPP3, const int pin_moteurPP4, const int vitesse) {
+
+    int attente = map(vitesse, 0, 100, 200,0);
+
+    static unsigned long tmpMoteurPP = 0;
+    ulong now = millis();
+    if (now - tmpMoteurPP > attente)
+    {
+        digitalWrite(pin_moteurPP1, digitalRead(pin_moteurPP2));
+        digitalWrite(pin_moteurPP2, digitalRead(pin_moteurPP3));
+        digitalWrite(pin_moteurPP3, digitalRead(pin_moteurPP4));
+        digitalWrite(pin_moteurPP4, digitalRead(pin_moteurPP1));
+        tmpMoteurPP = now;
+    }
 }
