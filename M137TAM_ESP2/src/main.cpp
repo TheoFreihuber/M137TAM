@@ -2,6 +2,7 @@
 #include <chrono>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
+#include <string>
 
 bool objet_posee = false;
 bool teleportation = false;
@@ -35,6 +36,7 @@ constexpr int hauteur_ecran = 4;
 constexpr int position_haute_plateforme = 137;
 constexpr int position_basse_plateforme = 105;
 
+constexpr int temps_pourcentage = 1000;
 
 
 //endregion
@@ -76,7 +78,6 @@ void setup() {
     lcd.setCursor(0, 3);
     lcd.print("   teleportation.   ");
     //endregion
-
 }
 
 void loop() {
@@ -90,17 +91,16 @@ void loop() {
             lcd.setCursor(0, 1);
             lcd.print("L objet a ete envoye");
             lcd.setCursor(0, 2);
-            lcd.print("[=-----------------]");
+            lcd.print("[------------------]");
             lcd.setCursor(0, 3);
             lcd.print("         5%         ");
-
         }
-        if (teleportation) {
 
+
+        if (teleportation) {
             analogWrite(enaMoteur, 255);
             digitalWrite(in1Moteur, HIGH);
             digitalWrite(in2Moteur, LOW);
-
 
             digitalWrite(led_entree, LOW);
             if (millis() < debut_teleportation + 3000) {
@@ -110,7 +110,26 @@ void loop() {
                 Setangle(servo_entree, position_haute_plateforme);
             }
 
+            uint pourcentage = (millis() - debut_teleportation)/temps_pourcentage;
+            if (pourcentage > 0 and pourcentage < 19) {
+                lcd.setCursor(pourcentage, 2);
+                lcd.print("=");
+            }
+
+            if(pourcentage > 0 and pourcentage < 20){
+                lcd.setCursor(8-pourcentage/19, 3);
+                lcd.print(pourcentage*5+5);
+            }
+
+            if(pourcentage == 19){
+                lcd.setCursor(0, 0);
+                lcd.print("Objet arrive"); // texte a revoir
+                lcd.setCursor(0, 1);
+                lcd.print("Recuperez votre objet"); // same
+            }
+
         }
+
         else {
             Setangle(servo_entree, position_haute_plateforme);
             lcd.setCursor(0, 0);
@@ -137,17 +156,12 @@ void loop() {
             lcd.print("avant d effectuer ");
             lcd.setCursor(0, 3);
             lcd.print("une teleportation. ");
-            // probablement mettre un son de buzzer pour améliorer l'UI
         }
 
         if (digitalRead(capteur_proxi) == LOW) {
             objet_posee = true;
-
         }
-
     }
-
-
 }
 
 
@@ -164,3 +178,4 @@ void Setangle(int servo, int angle)
     }
 
 }
+
