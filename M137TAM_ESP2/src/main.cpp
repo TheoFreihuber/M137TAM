@@ -32,7 +32,7 @@ constexpr int largeur_ecran = 20;
 constexpr int hauteur_ecran = 4;
 
 /// POSITION SERVO ///
-constexpr int position_haute_plateforme = 140;
+constexpr int position_haute_plateforme = 137;
 constexpr int position_basse_plateforme = 105;
 
 
