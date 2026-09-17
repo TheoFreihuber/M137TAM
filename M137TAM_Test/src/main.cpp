@@ -27,9 +27,12 @@ void Setangle(int servo, int angle);
 bool Magnet(int pin_magnet);
 
 void MoteurPPStart(int pin_moteurPP1,  int pin_moteurPP2,  int pin_moteurPP3,  int pin_moteurPP4);
-void MoteurPPClockWise( int pin_moteurPP1,  int pin_moteurPP2,  int pin_moteurPP3,  int pin_moteurPP4,  int vitesse);
-void MoteurPPCounterClockWise( int pin_moteurPP1,  int pin_moteurPP2,  int pin_moteurPP3,  int pin_moteurPP4,  int vitesse);
-
+void MoteurPPClockWise( int pin_moteurPP1,  int pin_moteurPP2,  int pin_moteurPP3,  int pin_moteurPP4);
+void MoteurPPCounterClockWise( int pin_moteurPP1,  int pin_moteurPP2,  int pin_moteurPP3,  int pin_moteurPP4);
+void MoteurPPClockWiseFix(int pin1, int pin2, int pin3, int pin4, int &etape) ;
+void MoteurPPCounterClockWiseFix(int pin1, int pin2, int pin3, int pin4, int &etape);
+void AppliquerEtape(int p1, int p2, int p3, int p4, int etape) ;
+void Setangle(int servo, int angle);
 
 void setup() {
     Serial.begin(115200);
@@ -44,10 +47,10 @@ void setup() {
     */
     //pinMode(D1, OUTPUT);
     //pinMode(D2, OUTPUT);
+    //pinMode(D1, OUTPUT);
+    //pinMode(D2, OUTPUT);
     pinMode(D1, OUTPUT);
-    pinMode(D2, OUTPUT);
-    pinMode(D5, OUTPUT);
-    pinMode(D6, OUTPUT);
+    pinMode(D2, INPUT_PULLUP);
 
 
 
@@ -56,7 +59,12 @@ void setup() {
 }
 
 void loop() {
-
+    Serial.println(analogRead(A0));
+    /*
+    analogWrite(D5, 155);
+    digitalWrite(D6, HIGH);
+    digitalWrite(D7, LOW);
+    */
     // Ascenseur(10);
     /*
 
@@ -68,11 +76,9 @@ void loop() {
     }
 
 
-    analogWrite(D1, 255);
-    digitalWrite(D2, LOW);
-    digitalWrite(D3, HIGH);
 
-    */
+
+
     if (notstarted == true) {
         digitalWrite(D1, HIGH);
         digitalWrite(D2, LOW);
@@ -83,42 +89,43 @@ void loop() {
 
 
     //montee
-    bool temp = digitalRead(D6);
-    digitalWrite(D6, digitalRead(D5));
-    digitalWrite(D5, digitalRead(D2));
-    digitalWrite(D2, digitalRead(D1));
-    digitalWrite(D1, temp);
+    bool temp = digitalRead(pin_moteurPP4);
+    digitalWrite(pin_moteurPP4, digitalRead(pin_moteurPP3));
+    digitalWrite(pin_moteurPP3, digitalRead(pin_moteurPP2));
+    digitalWrite(pin_moteurPP2, digitalRead(pin_moteurPP1));
+    digitalWrite(pin_moteurPP1, temp);
 
 
-    /*
+
     //descente
-    bool temp = digitalRead(D1);
-    digitalWrite(D1, digitalRead(D2));
-    digitalWrite(D2, digitalRead(D5));
-    digitalWrite(D5, digitalRead(D6));
-    digitalWrite(D6, temp);
+    bool temp = digitalRead(pin_moteurPP1);
+    digitalWrite(pin_moteurPP1, digitalRead(pin_moteurPP2));
+    digitalWrite(pin_moteurPP2, digitalRead(pin_moteurPP3));
+    digitalWrite(pin_moteurPP3, digitalRead(pin_moteurPP4));
+    digitalWrite(pin_moteurPP4, temp);
     */
 
-
-    delay(2);
-
-
-
-
-
-}
-
-void Setangle(const int servo, const int angle)
-{
-    ulong now = millis();
-    if (now - tmpservo > 20)
-    {
-        digitalWrite(servo, HIGH);
-        delayMicroseconds(map(angle,0,180,500,2500));
-        digitalWrite(servo, LOW);
-        tmpservo = now;
+    if (digitalRead(D2) == HIGH) {
+        Setangle(D1,62);
     }
+    else {
+        Setangle(D1,110);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 }
+
+
 
 /*
 void Ascenseur(int speed)
@@ -143,45 +150,85 @@ void Attend(int temps) {
 }
 */
 
-bool Magnet(const int pin_magnet) {
+bool Magnet( int pin_magnet) {
     return (analogRead(pin_magnet) < 100);
 }
 
-void MoteurPPStart(const int pin_moteurPP1, const int pin_moteurPP2, const int pin_moteurPP3, const int pin_moteurPP4) {
+void MoteurPPStart( int pin_moteurPP1,  int pin_moteurPP2,  int pin_moteurPP3,  int pin_moteurPP4) {
     digitalWrite(pin_moteurPP1, HIGH);
     digitalWrite(pin_moteurPP2, LOW);
     digitalWrite(pin_moteurPP3, LOW);
     digitalWrite(pin_moteurPP4, LOW);
 }
 
-void MoteurPPClockWise(const int pin_moteurPP1, const int pin_moteurPP2, const int pin_moteurPP3, const int pin_moteurPP4, const int vitesse) {
-
-    int attente = map(vitesse, 0, 100, 200,2);
-
+void MoteurPPClockWise( int pin_moteurPP1,  int pin_moteurPP2,  int pin_moteurPP3,  int pin_moteurPP4) {
     static unsigned long tmpMoteurPP = 0;
-    ulong now = millis();
-    if (now - tmpMoteurPP > attente)
+    if (millis() - tmpMoteurPP > 2)
     {
-        digitalWrite(pin_moteurPP1, digitalRead(pin_moteurPP4));
-        digitalWrite(pin_moteurPP2, digitalRead(pin_moteurPP1));
-        digitalWrite(pin_moteurPP3, digitalRead(pin_moteurPP2));
+        bool temp = digitalRead(pin_moteurPP4);
         digitalWrite(pin_moteurPP4, digitalRead(pin_moteurPP3));
-        tmpMoteurPP = now;
+        digitalWrite(pin_moteurPP3, digitalRead(pin_moteurPP2));
+        digitalWrite(pin_moteurPP2, digitalRead(pin_moteurPP1));
+        digitalWrite(pin_moteurPP1, temp);
+        tmpMoteurPP = millis();
     }
 }
 
-void MoteurPPCounterClockWise(const int pin_moteurPP1, const int pin_moteurPP2, const int pin_moteurPP3, const int pin_moteurPP4, const int vitesse) {
-
-    int attente = map(vitesse, 0, 100, 200,2);
-
-    static unsigned long tmpMoteurPP = 0;
-    ulong now = millis();
-    if (now - tmpMoteurPP > attente)
-    {
+void MoteurPPCounterClockWise( int pin_moteurPP1,  int pin_moteurPP2,  int pin_moteurPP3,  int pin_moteurPP4) {
+    // static unsigned long tmpMoteurPP = 0;
+    // if (millis() - tmpMoteurPP > 20)
+    // {
+        bool temp = digitalRead(pin_moteurPP1);
         digitalWrite(pin_moteurPP1, digitalRead(pin_moteurPP2));
         digitalWrite(pin_moteurPP2, digitalRead(pin_moteurPP3));
         digitalWrite(pin_moteurPP3, digitalRead(pin_moteurPP4));
-        digitalWrite(pin_moteurPP4, digitalRead(pin_moteurPP1));
-        tmpMoteurPP = now;
+        digitalWrite(pin_moteurPP4, temp);
+    delay(2);
+    //    tmpMoteurPP = millis();
+    //}
+}
+
+void AppliquerEtape(int p1, int p2, int p3, int p4, int etape) {
+    digitalWrite(p1, (etape == 0) ? HIGH : LOW);
+    digitalWrite(p2, (etape == 1) ? HIGH : LOW);
+    digitalWrite(p3, (etape == 2) ? HIGH : LOW);
+    digitalWrite(p4, (etape == 3) ? HIGH : LOW);
+}
+
+void MoteurPPClockWiseFix(int pin1, int pin2, int pin3, int pin4, int &etape) {
+    static unsigned long tmpMoteurPP = 0;
+    if (millis() - tmpMoteurPP > 2) {
+        etape++;
+        if (etape > 3) etape = 0;
+
+        AppliquerEtape(pin1, pin2, pin3, pin4, etape);
+        tmpMoteurPP = millis();
     }
+}
+
+void MoteurPPCounterClockWiseFix(int pin1, int pin2, int pin3, int pin4, int &etape) {
+    static unsigned long tmpMoteurPP = 0;
+
+    // Attendre 20ms entre chaque pas
+    if (millis() - tmpMoteurPP > 2) {
+        etape--; // On passe à l'étape précédente
+        if (etape < 0) etape = 3; // On boucle de 0 à 3
+
+        AppliquerEtape(pin1, pin2, pin3, pin4, etape);
+        tmpMoteurPP = millis();
+    }
+}
+
+void Setangle(int servo, int angle)
+{
+    static unsigned long tmpservo = 0;
+    ulong now = millis();
+    if (now - tmpservo > 20)
+    {
+        digitalWrite(servo, HIGH);
+        delayMicroseconds(map(angle,0,180,500,2500));
+        digitalWrite(servo, LOW);
+        tmpservo = now;
+    }
+
 }

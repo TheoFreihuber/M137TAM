@@ -33,7 +33,7 @@ constexpr int hauteur_ecran = 4;
 
 /// POSITION SERVO ///
 constexpr int position_haute_plateforme = 140;
-constexpr int position_basse_plateforme = 90;
+constexpr int position_basse_plateforme = 105;
 
 
 
@@ -47,7 +47,7 @@ void setup() {
     pinMode(ecran1, OUTPUT);
     pinMode(ecran2, OUTPUT);
 
-    pinMode(bouton, INPUT_PULLUP);
+    pinMode(bouton, INPUT);
 
     pinMode(servo_entree, OUTPUT);
 
@@ -82,7 +82,7 @@ void setup() {
 void loop() {
     Serial.println(digitalRead(bouton));
     if (objet_posee) {
-        if (digitalRead(bouton) == LOW) {
+        if (digitalRead(bouton) == HIGH) {
             teleportation = true;
             debut_teleportation = millis();
             lcd.setCursor(0, 0);
@@ -97,7 +97,7 @@ void loop() {
         }
         if (teleportation) {
 
-            analogWrite(enaMoteur, 155);
+            analogWrite(enaMoteur, 255);
             digitalWrite(in1Moteur, HIGH);
             digitalWrite(in2Moteur, LOW);
 
@@ -128,7 +128,7 @@ void loop() {
 
     else {
         Setangle(servo_entree, position_haute_plateforme);
-        if (digitalRead(bouton) == LOW) {
+        if (digitalRead(bouton) == HIGH) {
             lcd.setCursor(0, 0);
             lcd.print("Veuillez poser un ");
             lcd.setCursor(0, 1);
