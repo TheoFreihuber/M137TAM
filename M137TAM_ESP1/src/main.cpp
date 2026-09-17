@@ -1,18 +1,30 @@
 #include <Arduino.h>
 
+//region initialisation variable
 bool teleportation = false;
 
 bool haut = false;
 
 bool fini = false;
+//endregion
 
-const int cale_ouverte = 63;
-const int cale_fermer = 110;
+//region setup constante
+constexpr int cale_ouverte = 63;
+constexpr int cale_fermer = 110;
+
+constexpr int temps_plateforme = 2000;
+
+constexpr int temps_fin = 10000;
+
+constexpr int temps_tapis = 5000;
 
 int monEtapeMoteur = 0;
 
 ulong debut_teleportation = 0;
 ulong moment_haut = 0;
+//endregion
+
+//region setup pin
 
 constexpr int moteurP1 = D1;
 constexpr int moteurP2 = D2;
@@ -27,6 +39,7 @@ constexpr int bouton = D6;
 
 constexpr int bouton_reset = D4;
 
+//endregion
 
 
 void MoteurPPClockWiseFix(int pin1, int pin2, int pin3, int pin4, int &etape) ;
@@ -52,8 +65,7 @@ void setup() {
 }
 
 void loop() {
-    Serial.println(digitalRead(capteur_proxi));
-    
+
     if (digitalRead(bouton_reset) == LOW) {
         MoteurPPCounterClockWiseFix(moteurP1, moteurP2, moteurP3, moteurP4, monEtapeMoteur);
         haut = false;
@@ -67,6 +79,31 @@ void loop() {
         teleportation = true;
     }
 
+    if (teleportation and debut_teleportation + temps_tapis < millis()) {
+        if (digitalRead(capteur_proxi) == HIGH) { // l'ascenseur est monté plus haut que le capteur
+            if (moment_haut == 0) {
+                moment_haut = millis();
+            }
+
+            if (moment_haut + temps_plateforme < millis()) {
+                haut = true;
+            }
+        }
+
+        if (!haut) {
+            MoteurPPClockWiseFix(moteurP1, moteurP2, moteurP3, moteurP4, monEtapeMoteur);
+        }
+
+        else {
+            if (moment_haut + temps_plateforme < millis() and !fini) {
+                MoteurPPClockWiseFix(moteurP1, moteurP1, moteurP3, moteurP4, monEtapeMoteur);
+                if (moment_haut + temps_fin < millis()) {
+                    fini = true;
+                }
+            }
+        }
+    }
+
     if (!haut) {
         Setangle(servo_cale, cale_ouverte);
     }
@@ -74,38 +111,6 @@ void loop() {
         Setangle(servo_cale, cale_fermer);
     }
 
-    if (teleportation) {
-        if (debut_teleportation + 5000 < millis()) {
-            if (digitalRead(capteur_proxi) == HIGH) { // /!\ CODE LOW/HIGH A VERIFIER //
-                if (moment_haut == 0) {
-                    moment_haut = millis();
-                }
-
-                if (moment_haut + 2000 < millis()) {
-                    haut = true;
-                }
-            }
-            if (!haut) {
-                MoteurPPClockWiseFix(moteurP1, moteurP2, moteurP3, moteurP4, monEtapeMoteur);
-            }
-            else {
-                if (moment_haut + 2000 < millis()) {
-                    if (fini) {
-
-
-                    }
-                    else {
-                        MoteurPPClockWiseFix(moteurP1, moteurP1, moteurP3, moteurP4, monEtapeMoteur);
-                        if (moment_haut + 10000 < millis()) {
-                            fini = true;
-                        }
-                    }
-
-
-                }
-            }
-        }
-    }
 }
 
 void Setangle(int servo, int angle)
@@ -119,6 +124,7 @@ void Setangle(int servo, int angle)
         digitalWrite(servo, LOW);
         tmpservo = now;
     }
+
 
 }
 
