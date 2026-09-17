@@ -4,6 +4,8 @@ bool teleportation = false;
 
 bool haut = false;
 
+bool fini = false;
+
 const int cale_ouverte = 63;
 const int cale_fermer = 110;
 
@@ -24,6 +26,8 @@ constexpr int capteur_proxi = D7;
 constexpr int bouton = D6;
 
 constexpr int bouton_reset = D4;
+
+
 
 void MoteurPPClockWiseFix(int pin1, int pin2, int pin3, int pin4, int &etape) ;
 void MoteurPPCounterClockWiseFix(int pin1, int pin2, int pin3, int pin4, int &etape);
@@ -55,10 +59,14 @@ void loop() {
         haut = false;
         teleportation = false;
     }
-    if (digitalRead(bouton) == HIGH) {
+
+    if (digitalRead(bouton) == HIGH or true) {
+        if (!teleportation) {
+            debut_teleportation = millis();
+        }
         teleportation = true;
-        debut_teleportation = millis();
     }
+
     if (!haut) {
         Setangle(servo_cale, cale_ouverte);
     }
@@ -68,9 +76,12 @@ void loop() {
 
     if (teleportation) {
         if (debut_teleportation + 5000 < millis()) {
-            if (digitalRead(capteur_proxi) == LOW) { // /!\ CODE LOW/HIGH A VERIFIER //
-                moment_haut = millis();
-                if (moment_haut + 500 < millis()) {
+            if (digitalRead(capteur_proxi) == HIGH) { // /!\ CODE LOW/HIGH A VERIFIER //
+                if (moment_haut == 0) {
+                    moment_haut = millis();
+                }
+
+                if (moment_haut + 2000 < millis()) {
                     haut = true;
                 }
             }
@@ -78,15 +89,18 @@ void loop() {
                 MoteurPPClockWiseFix(moteurP1, moteurP2, moteurP3, moteurP4, monEtapeMoteur);
             }
             else {
-                if (moment_haut + 500 < millis()) {
-                    /*
+                if (moment_haut + 2000 < millis()) {
                     if (fini) {
+
 
                     }
                     else {
                         MoteurPPClockWiseFix(moteurP1, moteurP1, moteurP3, moteurP4, monEtapeMoteur);
+                        if (moment_haut + 10000 < millis()) {
+                            fini = true;
+                        }
                     }
-                    */
+
 
                 }
             }
