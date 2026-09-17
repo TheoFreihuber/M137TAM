@@ -71,8 +71,8 @@ void loop() {
         haut = false;
         teleportation = false;
     }
-
-    if (digitalRead(bouton) == HIGH or true) {
+    //TODO Regler le bouton
+    if (digitalRead(bouton) == HIGH or true) { /// /!\ REGLER LE BOUTON ET DONC LE IF ///
         if (!teleportation) {
             debut_teleportation = millis();
         }
