@@ -15,13 +15,17 @@ void Setangle(int servo, int angle);
 constexpr int ecran1 = D1;
 constexpr int ecran2 = D2;
 
-constexpr int bouton = D3;
+constexpr int bouton = D6;
 
-constexpr int servo_entree = D6;
+constexpr int servo_entree = D0;
 
 constexpr int capteur_proxi = D7;
 
 constexpr int led_entree = D5;
+
+constexpr int enaMoteur = D8;
+constexpr int in1Moteur = D3;
+constexpr int in2Moteur = D4;
 
 /// ECRAN ///
 constexpr int largeur_ecran = 20;
@@ -38,6 +42,7 @@ constexpr int position_basse_plateforme = 90;
 LiquidCrystal_I2C lcd(0x27, largeur_ecran, hauteur_ecran);  // Initialisation de l'écran
 
 void setup() {
+    Serial.begin(115200);
     //region Setup Pin
     pinMode(ecran1, OUTPUT);
     pinMode(ecran2, OUTPUT);
@@ -49,6 +54,10 @@ void setup() {
     pinMode(capteur_proxi, INPUT);
 
     pinMode(led_entree, OUTPUT);
+
+    pinMode(enaMoteur, OUTPUT);
+    pinMode(in1Moteur, OUTPUT);
+    pinMode(in2Moteur, OUTPUT);
     //endregion
 
     //region Setup Ecran 20*4
@@ -71,13 +80,11 @@ void setup() {
 }
 
 void loop() {
+    Serial.println(digitalRead(bouton));
     if (objet_posee) {
         if (digitalRead(bouton) == LOW) {
             teleportation = true;
             debut_teleportation = millis();
-
-        }
-        if (teleportation) {
             lcd.setCursor(0, 0);
             lcd.print("Teleportation lancee");
             lcd.setCursor(0, 1);
@@ -86,6 +93,14 @@ void loop() {
             lcd.print("[=-----------------]");
             lcd.setCursor(0, 3);
             lcd.print("         5%         ");
+
+        }
+        if (teleportation) {
+
+            analogWrite(enaMoteur, 155);
+            digitalWrite(in1Moteur, HIGH);
+            digitalWrite(in2Moteur, LOW);
+
 
             digitalWrite(led_entree, LOW);
             if (millis() < debut_teleportation + 3000) {
