@@ -9,14 +9,14 @@ bool fini = false;
 //endregion
 
 //region setup constante
-constexpr int cale_ouverte = 63;
-constexpr int cale_fermer = 110;
+constexpr int cale_ouverte = 60;
+constexpr int cale_fermer = 105;
 
 constexpr int temps_plateforme = 2000;
 
-constexpr int temps_fin = 10000;
+constexpr int temps_fin = 12000;
 
-constexpr int temps_tapis = 5000;
+constexpr int temps_tapis = 8000;
 
 int monEtapeMoteur = 0;
 
@@ -113,6 +113,9 @@ void loop() {
 
 }
 
+/// Fonction permettant de fixer un angle donner sur un servo donné
+/// @param servo n° de pin du servo concerné
+/// @param angle angle désirer sur le servo
 void Setangle(int servo, int angle)
 {
     static unsigned long tmpservo = 0;
@@ -125,9 +128,14 @@ void Setangle(int servo, int angle)
         tmpservo = now;
     }
 
-
 }
 
+/// Permet d'activer le bon pin du moteur en fonction de l'étape
+/// @param p1 n° de pin du in1 moteur
+/// @param p2 n° de pin du in2 moteur
+/// @param p3 in3
+/// @param p4 in4
+/// @param etape etape actuel du moteur, le pin du moteur a activer
 void AppliquerEtape(int p1, int p2, int p3, int p4, int etape) {
     digitalWrite(p1, (etape == 0) ? HIGH : LOW);
     digitalWrite(p2, (etape == 1) ? HIGH : LOW);
@@ -135,6 +143,12 @@ void AppliquerEtape(int p1, int p2, int p3, int p4, int etape) {
     digitalWrite(p4, (etape == 3) ? HIGH : LOW);
 }
 
+/// Permet de changer l'étape moteur pour tourner dans le sens des aiguilles d'une montre
+/// @param pin1 n° de pin du in1 moteur
+/// @param pin2 n° de pin du in2 moteur
+/// @param pin3 in3
+/// @param pin4 in4
+/// @param etape etape actuel du moteur, le pin du moteur a activer
 void MoteurPPClockWiseFix(int pin1, int pin2, int pin3, int pin4, int &etape) {
     static unsigned long tmpMoteurPP = 0;
     if (millis() - tmpMoteurPP > 2) {
@@ -146,6 +160,12 @@ void MoteurPPClockWiseFix(int pin1, int pin2, int pin3, int pin4, int &etape) {
     }
 }
 
+/// Permet de changer l'étape moteur pour tourner dans le sens des aiguilles d'une montre
+/// @param pin1 n° de pin du in1 moteur
+/// @param pin2 n° de pin du in2 moteur
+/// @param pin3 in3
+/// @param pin4 in4
+/// @param etape etape actuel du moteur, le pin du moteur a activer
 void MoteurPPCounterClockWiseFix(int pin1, int pin2, int pin3, int pin4, int &etape) {
     static unsigned long tmpMoteurPP = 0;
 
